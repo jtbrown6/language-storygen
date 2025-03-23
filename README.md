@@ -21,6 +21,15 @@ A Docker-containerized web application that generates custom Spanish stories bas
   - Docker containers for both frontend and backend
   - Easy deployment with Docker Compose
 
+## Future Enhancements
+
+- **Tab Session Consistency**: Currently when looking for verbs and going back to generator tab, the screen refreshes and user looses their written responses
+- **Audio Integration**: Text-to-speech functionality for stories
+- **Persistent Storage**: Change the volume to mount from the host instead of a docker-volume to control the data
+- **User Authentication**: Personal accounts to save progress
+- **Extended Language Support**: Add more languages beyond Spanish
+- **Progress Tracking**: Track mastered vocabulary and grammar concepts
+
 ## Tech Stack
 
 - **Frontend**:
@@ -98,12 +107,6 @@ docker compose up -d
 - `DELETE /api/study-list/:id` - Remove an item from the study list
 - `GET /api/study-list/:id` - Get a specific study item
 
-## Future Enhancements
-
-- **Audio Integration**: Text-to-speech functionality for stories
-- **User Authentication**: Personal accounts to save progress
-- **Extended Language Support**: Add more languages beyond Spanish
-- **Progress Tracking**: Track mastered vocabulary and grammar concepts
 
 ## License
 
