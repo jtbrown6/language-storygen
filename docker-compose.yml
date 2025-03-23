@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile.frontend
     ports:
-      - "3002:3000"
+      - "192.168.1.214:3002:3000"
     restart: unless-stopped
     depends_on:
       - backend
@@ -18,7 +18,7 @@ services:
       context: .
       dockerfile: Dockerfile.backend
     ports:
-      - "5002:5000"
+      - "192.168.1.214:5002:5000"
     restart: unless-stopped
     environment:
       - NODE_ENV=production
