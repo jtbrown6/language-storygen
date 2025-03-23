@@ -1,0 +1,23 @@
+{
+  "name": "story-generator",
+  "version": "1.0.0",
+  "description": "A language learning story generator application",
+  "main": "index.js",
+  "scripts": {
+    "start": "docker-compose up",
+    "build": "docker-compose build",
+    "dev": "docker-compose -f docker-compose.dev.yml up",
+    "install-all": "npm install && cd client && npm install && cd ../server && npm install",
+    "client": "cd client && npm start",
+    "server": "cd server && npm start"
+  },
+  "keywords": [
+    "language",
+    "learning",
+    "story",
+    "generator",
+    "openai"
+  ],
+  "author": "",
+  "license": "MIT"
+}
