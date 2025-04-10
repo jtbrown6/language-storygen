@@ -1,9 +1,13 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { getDeviceId } from '../utils/deviceId';
 
 export const StoryContext = createContext();
 
 export const StoryProvider = ({ children }) => {
+  // Device identification for sync across devices
+  const deviceId = getDeviceId();
+  
   // Current story state
   const [currentStory, setCurrentStory] = useState(null);
   const [markup, setMarkup] = useState([]);
@@ -15,12 +19,40 @@ export const StoryProvider = ({ children }) => {
   // Saved stories
   const [savedStories, setSavedStories] = useState([]);
   
-  // Load saved stories from local storage on initial load
+  // Load saved stories and current story on initial load
   useEffect(() => {
-    const loadSavedStories = async () => {
+    const loadData = async () => {
       try {
-        const response = await axios.get('/api/story');
-        setSavedStories(response.data);
+        // Load saved stories
+        const savedStoriesResponse = await axios.get('/api/story');
+        setSavedStories(savedStoriesResponse.data);
+        
+        // Load current story if it exists
+        try {
+          const currentStoryResponse = await axios.get(`/api/current-story/${deviceId}`);
+          const latestStory = currentStoryResponse.data;
+          
+          // Only set if we don't already have a current story
+          if (!currentStory && latestStory) {
+            console.log('Loading current story from database');
+            setCurrentStory({
+              story: latestStory.story,
+              parameters: latestStory.parameters
+            });
+            setMarkup(latestStory.markup || []);
+            
+            // Also set translation if it exists
+            if (latestStory.translation) {
+              setTranslation(latestStory.translation);
+              setShowTranslation(true);
+            }
+          }
+        } catch (err) {
+          // It's okay if there's no current story
+          if (err.response?.status !== 404) {
+            console.error('Error loading current story:', err);
+          }
+        }
       } catch (err) {
         console.error('Error loading saved stories:', err);
         // Fallback to localStorage if API fails
@@ -31,13 +63,40 @@ export const StoryProvider = ({ children }) => {
       }
     };
     
-    loadSavedStories();
+    loadData();
   }, []);
   
   // Save stories to localStorage whenever savedStories changes
   useEffect(() => {
     localStorage.setItem('savedStories', JSON.stringify(savedStories));
   }, [savedStories]);
+  
+  // Save current story to database whenever it changes
+  useEffect(() => {
+    const saveCurrentStoryToDb = async () => {
+      if (!currentStory) return;
+      
+      try {
+        // Save current story to database
+        await axios.post('/api/current-story', {
+          deviceId,
+          story: currentStory.story,
+          parameters: currentStory.parameters,
+          markup,
+          translation
+        });
+        console.log('Current story saved to database');
+      } catch (err) {
+        console.error('Error saving current story to database:', err);
+        // Non-critical error, so don't show to user
+      }
+    };
+    
+    // Only save if we have a current story
+    if (currentStory) {
+      saveCurrentStoryToDb();
+    }
+  }, [currentStory, markup, translation, deviceId]);
   
   // Generate a story based on parameters
   const generateStory = async (parameters) => {
@@ -49,10 +108,13 @@ export const StoryProvider = ({ children }) => {
       const response = await axios.post('/api/story/generate', parameters);
       console.log('Story generation response:', response.data);
       
-      setCurrentStory({
+      const newStory = {
         story: response.data.story,
         parameters: response.data.parameters
-      });
+      };
+      
+      // Update state with the new story
+      setCurrentStory(newStory);
       
       // Store the markup information
       setMarkup(response.data.markup || []);
@@ -82,8 +144,23 @@ export const StoryProvider = ({ children }) => {
         text: currentStory.story
       });
       
-      setTranslation(response.data.translation);
+      const newTranslation = response.data.translation;
+      setTranslation(newTranslation);
       setShowTranslation(true);
+      
+      // Also update current story with translation
+      try {
+        await axios.post('/api/current-story', {
+          deviceId,
+          story: currentStory.story,
+          parameters: currentStory.parameters,
+          markup,
+          translation: newTranslation
+        });
+        console.log('Current story updated with translation');
+      } catch (err) {
+        console.error('Error updating current story with translation:', err);
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to translate story');
       console.error('Error translating story:', err);

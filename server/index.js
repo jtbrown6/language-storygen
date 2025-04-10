@@ -10,6 +10,7 @@ const storyRoutes = require('./routes/story');
 const translationRoutes = require('./routes/translation');
 const studyListRoutes = require('./routes/studyList');
 const healthRoutes = require('./routes/health');
+const currentStoryRoutes = require('./routes/currentStory');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -61,6 +62,7 @@ app.use('/api/story', storyRoutes);
 app.use('/api/translate', translationRoutes);
 app.use('/api/study-list', studyListRoutes);
 app.use('/api/health', healthRoutes);
+app.use('/api/current-story', currentStoryRoutes);
 
 // Handle production build
 if (process.env.NODE_ENV === 'production') {
