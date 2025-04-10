@@ -35,10 +35,42 @@ const TranslatableText = ({ text, contentType = 'story' }) => {
     });
   };
   
-  // Apply markup to text (no formatting per user request)
+  // Apply markup to text (bold for selected verbs)
   const applyMarkupToText = (content) => {
-    // Simply return the content without any formatting
-    return content;
+    if (!markup || markup.length === 0) return content;
+    
+    // Sort markup entries by start position (ascending)
+    const sortedMarkup = [...markup].sort((a, b) => a.start - b.start);
+    
+    const result = [];
+    let lastIndex = 0;
+    
+    // Process each markup entry
+    for (const mark of sortedMarkup) {
+      // Add text before this markup
+      if (mark.start > lastIndex) {
+        result.push(content.substring(lastIndex, mark.start));
+      }
+      
+      // Add the marked-up text with appropriate styling
+      const markedText = content.substring(mark.start, mark.end);
+      if (mark.type === 'selected-verb') {
+        // Bold for user-selected verbs
+        result.push(<strong key={`${mark.start}-${mark.end}`}>{markedText}</strong>);
+      } else {
+        // Regular text for other markup types
+        result.push(markedText);
+      }
+      
+      lastIndex = mark.end;
+    }
+    
+    // Add any remaining text
+    if (lastIndex < content.length) {
+      result.push(content.substring(lastIndex));
+    }
+    
+    return result;
   };
   
   // Handle text selection

@@ -1,6 +1,19 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { StoryContext } from '../contexts/StoryContext';
-import { FaDice, FaPlay } from 'react-icons/fa';
+import { FaDice, FaPlay, FaRandom } from 'react-icons/fa';
+
+// List of common Spanish verbs for random selection
+const commonVerbs = [
+  'hablar', 'comer', 'vivir', 'ser', 'estar', 'ir', 'hacer', 'tener', 'poder',
+  'querer', 'decir', 'ver', 'dar', 'saber', 'llegar', 'pasar', 'deber', 'poner',
+  'parecer', 'quedar', 'creer', 'dejar', 'sentir', 'pensar', 'encontrar', 'salir',
+  'volver', 'tomar', 'conocer', 'seguir', 'llevar', 'empezar', 'necesitar', 'buscar',
+  'terminar', 'permitir', 'esperar', 'entrar', 'trabajar', 'escribir', 'perder',
+  'existir', 'ocurrir', 'venir', 'mirar', 'conseguir', 'comenzar', 'gustar', 'jugar',
+  'escuchar', 'entender', 'leer', 'recibir', 'pedir', 'comprar', 'abrir', 'ayudar',
+  'cambiar', 'aprender', 'caminar', 'correr', 'dormir', 'estudiar', 'ganar', 'morir',
+  'pagar', 'servir', 'usar', 'vender', 'viajar', 'contar', 'mostrar', 'preferir'
+];
 
 const ControlPanel = () => {
   const { generateStory, getRandomScenario, isLoading } = useContext(StoryContext);
@@ -12,7 +25,7 @@ const ControlPanel = () => {
   const [indirectObjectLevel, setIndirectObjectLevel] = useState(1);
   const [reflexiveVerbLevel, setReflexiveVerbLevel] = useState(1);
   const [idiomaticExpressions, setIdiomaticExpressions] = useState(false);
-  const [level, setLevel] = useState('A2');
+  const [level, setLevel] = useState('B1');
   
   // Handle random scenario generation
   const handleRandomScenario = async () => {
@@ -23,6 +36,33 @@ const ControlPanel = () => {
       setScenario(randomScenario);
     } catch (error) {
       console.error('Error in handleRandomScenario:', error);
+    }
+  };
+  
+  // Handle random verb generation
+  const handleRandomVerbs = () => {
+    try {
+      console.log('Random verbs button clicked');
+      
+      // Create a copy of the verbs array to avoid duplicates
+      const availableVerbs = [...commonVerbs];
+      const selectedVerbs = [];
+      
+      // Select two random verbs
+      for (let i = 0; i < 2; i++) {
+        if (availableVerbs.length === 0) break;
+        
+        const randomIndex = Math.floor(Math.random() * availableVerbs.length);
+        const selectedVerb = availableVerbs.splice(randomIndex, 1)[0];
+        selectedVerbs.push(selectedVerb);
+      }
+      
+      // Format the verbs as a comma-separated string
+      const verbString = selectedVerbs.join(', ');
+      console.log('Setting verbs to:', verbString);
+      setVerbs(verbString);
+    } catch (error) {
+      console.error('Error in handleRandomVerbs:', error);
     }
   };
   
@@ -97,12 +137,22 @@ const ControlPanel = () => {
         <div className="parameters-control">
           <div className="form-group">
             <label className="form-label">Verbs (comma separated)</label>
-            <input
-              type="text"
-              value={verbs}
-              onChange={(e) => setVerbs(e.target.value)}
-              placeholder="e.g. hablar, comer, vivir"
-            />
+            <div className="scenario-input">
+              <input
+                type="text"
+                value={verbs}
+                onChange={(e) => setVerbs(e.target.value)}
+                placeholder="e.g. hablar, comer, vivir"
+              />
+              <button 
+                type="button" 
+                className="btn random-btn" 
+                onClick={handleRandomVerbs}
+                title="Generate random verbs"
+              >
+                <FaDice />
+              </button>
+            </div>
           </div>
           
           <div className="form-group">
