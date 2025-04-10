@@ -1,13 +1,10 @@
 const OpenAI = require('openai');
+const Story = require('../models/Story');
 
 // Initialize OpenAI API
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-
-// In-memory storage for saved stories (in a real app, this would be a database)
-let stories = [];
-let storyIdCounter = 1;
 
 // Helper function to generate a GPT prompt based on parameters
 const generatePrompt = (params) => {
@@ -172,50 +169,83 @@ exports.generateStory = async (req, res) => {
   }
 };
 
-exports.getStories = (req, res) => {
-  res.json(stories);
+exports.getStories = async (req, res) => {
+  try {
+    const stories = await Story.find().sort({ dateCreated: -1 });
+    console.log(`[MongoDB] Retrieved ${stories.length} stories from database`);
+    res.json(stories);
+  } catch (error) {
+    console.error('Error fetching stories:', error);
+    res.status(500).json({ error: 'Failed to fetch stories' });
+  }
 };
 
-exports.getStoryById = (req, res) => {
-  const story = stories.find(s => s.id === parseInt(req.params.id));
-  if (!story) {
-    return res.status(404).json({ error: 'Story not found' });
+exports.getStoryById = async (req, res) => {
+  try {
+    const story = await Story.findById(req.params.id);
+    if (!story) {
+      return res.status(404).json({ error: 'Story not found' });
+    }
+    res.json(story);
+  } catch (error) {
+    console.error('Error fetching story:', error);
+    res.status(500).json({ error: 'Failed to fetch story' });
   }
-  res.json(story);
 };
 
-exports.saveStory = (req, res) => {
-  const { story, parameters } = req.body;
-  
-  if (!story) {
-    return res.status(400).json({ error: 'Story content is required' });
+exports.saveStory = async (req, res) => {
+  try {
+    const { story, parameters, markup } = req.body;
+    
+    if (!story) {
+      return res.status(400).json({ error: 'Story content is required' });
+    }
+    
+    const newStory = new Story({
+      story,
+      parameters,
+      markup: markup || [],
+      translation: null // Will be populated when translation is requested
+    });
+    
+    const savedStory = await newStory.save();
+    console.log(`[MongoDB] Story saved successfully with ID: ${savedStory._id}`);
+    console.log(`[MongoDB] Story details: ${savedStory.parameters?.scenario || 'No scenario'}, Level: ${savedStory.parameters?.level || 'Unknown'}`);
+    res.status(201).json(savedStory);
+  } catch (error) {
+    console.error('Error saving story:', error);
+    res.status(500).json({ error: 'Failed to save story' });
   }
-  
-  const newStory = {
-    id: storyIdCounter++,
-    story,
-    parameters,
-    translation: null, // Will be populated when translation is requested
-    dateCreated: new Date().toISOString()
-  };
-  
-  stories.push(newStory);
-  res.status(201).json(newStory);
 };
 
-exports.deleteStory = (req, res) => {
-  const storyId = parseInt(req.params.id);
-  const initialLength = stories.length;
-  stories = stories.filter(s => s.id !== storyId);
-  
-  if (stories.length === initialLength) {
-    return res.status(404).json({ error: 'Story not found' });
+exports.deleteStory = async (req, res) => {
+  try {
+    const storyId = req.params.id;
+    const story = await Story.findByIdAndDelete(storyId);
+    
+    if (!story) {
+      return res.status(404).json({ error: 'Story not found' });
+    }
+    
+    console.log(`[MongoDB] Story deleted successfully: ID ${storyId}`);
+    res.json({ success: true, message: 'Story deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting story:', error);
+    res.status(500).json({ error: 'Failed to delete story' });
   }
-  
-  res.json({ success: true, message: 'Story deleted successfully' });
 };
 
 exports.getRandomScenario = (req, res) => {
-  const randomIndex = Math.floor(Math.random() * randomScenarios.length);
-  res.json({ scenario: randomScenarios[randomIndex] });
+  try {
+    const randomIndex = Math.floor(Math.random() * randomScenarios.length);
+    const scenario = randomScenarios[randomIndex];
+    console.log(`[MongoDB] Random scenario generated: "${scenario}"`);
+    res.json({ scenario });
+  } catch (error) {
+    console.error('Error generating random scenario:', error);
+    res.status(500).json({ 
+      error: 'Failed to generate random scenario',
+      fallback: 'Un día en la playa'
+    });
+  }
 };

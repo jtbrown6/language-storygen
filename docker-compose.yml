@@ -25,9 +25,23 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - PORT=5000
       - HOST=0.0.0.0
+      - MONGODB_URI=mongodb://mongodb:27017/language-storygen
+    depends_on:
+      - mongodb
     volumes:
       - app_data:/app/data
 
+  mongodb:
+    image: mongo:6.0
+    restart: unless-stopped
+    ports:
+      - "192.168.1.214:27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    command: mongod --quiet --logpath /dev/null
+
 volumes:
   app_data:
+    driver: local
+  mongodb_data:
     driver: local

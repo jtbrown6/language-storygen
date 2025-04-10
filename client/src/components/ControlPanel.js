@@ -16,8 +16,14 @@ const ControlPanel = () => {
   
   // Handle random scenario generation
   const handleRandomScenario = async () => {
-    const randomScenario = await getRandomScenario();
-    setScenario(randomScenario);
+    try {
+      console.log('Random scenario button clicked');
+      const randomScenario = await getRandomScenario();
+      console.log('Setting scenario to:', randomScenario);
+      setScenario(randomScenario);
+    } catch (error) {
+      console.error('Error in handleRandomScenario:', error);
+    }
   };
   
   // Handle form submission

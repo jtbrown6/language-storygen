@@ -72,7 +72,7 @@ export const StudyListProvider = ({ children }) => {
     
     try {
       await axios.delete(`/api/study-list/${itemId}`);
-      setStudyList(studyList.filter(item => item.id !== itemId));
+      setStudyList(studyList.filter(item => item._id !== itemId));
       return true;
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to remove item from study list');

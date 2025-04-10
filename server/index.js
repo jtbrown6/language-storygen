@@ -3,15 +3,53 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
+const mongoose = require('mongoose');
 
 // Import routes
 const storyRoutes = require('./routes/story');
 const translationRoutes = require('./routes/translation');
 const studyListRoutes = require('./routes/studyList');
+const healthRoutes = require('./routes/health');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 const HOST = process.env.HOST || 'localhost';
+
+// MongoDB Connection
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/language-storygen';
+
+console.log(`[MongoDB] Attempting to connect to: ${MONGODB_URI}`);
+
+mongoose.connect(MONGODB_URI)
+  .then(() => {
+    console.log('[MongoDB] Connection established successfully');
+    console.log('[MongoDB] Database: language-storygen');
+    
+    // Log the database connection status
+    mongoose.connection.on('connected', () => {
+      console.log('[MongoDB] Connection is active and ready');
+    });
+    
+    mongoose.connection.on('disconnected', () => {
+      console.log('[MongoDB] Connection disconnected');
+      console.log('[MongoDB] Attempting to reconnect...');
+    });
+    
+    mongoose.connection.on('reconnected', () => {
+      console.log('[MongoDB] Successfully reconnected to database');
+    });
+    
+    // Log database operations in development mode
+    if (process.env.NODE_ENV !== 'production') {
+      mongoose.set('debug', (collectionName, method, query, doc) => {
+        console.log(`[MongoDB Debug] ${collectionName}.${method}`, JSON.stringify(query), doc);
+      });
+    }
+  })
+  .catch(err => {
+    console.error('[MongoDB] Connection error:', err);
+    process.exit(1);
+  });
 
 // Middleware
 app.use(cors());
@@ -22,11 +60,7 @@ app.use(morgan('dev'));
 app.use('/api/story', storyRoutes);
 app.use('/api/translate', translationRoutes);
 app.use('/api/study-list', studyListRoutes);
-
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date() });
-});
+app.use('/api/health', healthRoutes);
 
 // Handle production build
 if (process.env.NODE_ENV === 'production') {

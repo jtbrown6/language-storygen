@@ -17,6 +17,13 @@ router.post('/generate', storyController.generateStory);
 router.get('/', storyController.getStories);
 
 /**
+ * @route   GET /api/story/random-scenario
+ * @desc    Get a random scenario
+ * @access  Public
+ */
+router.get('/random-scenario', storyController.getRandomScenario);
+
+/**
  * @route   GET /api/story/:id
  * @desc    Get a story by ID
  * @access  Public
@@ -36,12 +43,5 @@ router.post('/save', storyController.saveStory);
  * @access  Public
  */
 router.delete('/:id', storyController.deleteStory);
-
-/**
- * @route   GET /api/story/random-scenario
- * @desc    Get a random scenario
- * @access  Public
- */
-router.get('/random-scenario', storyController.getRandomScenario);
 
 module.exports = router;

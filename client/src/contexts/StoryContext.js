@@ -127,7 +127,7 @@ export const StoryProvider = ({ children }) => {
   const deleteStory = async (storyId) => {
     try {
       await axios.delete(`/api/story/${storyId}`);
-      setSavedStories(savedStories.filter(story => story.id !== storyId));
+      setSavedStories(savedStories.filter(story => story._id !== storyId));
       return true;
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to delete story');
@@ -139,10 +139,16 @@ export const StoryProvider = ({ children }) => {
   // Get a random scenario
   const getRandomScenario = async () => {
     try {
+      // Clear any previous error
+      setError(null);
+      
+      console.log('Fetching random scenario from API...');
       const response = await axios.get('/api/story/random-scenario');
+      console.log('Random scenario received:', response.data.scenario);
       return response.data.scenario;
     } catch (err) {
       console.error('Error fetching random scenario:', err);
+      setError('Failed to get random scenario. Using default instead.');
       // Fallback to a default scenario
       return 'Un día en la playa';
     }
