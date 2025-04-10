@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './styles/index.css';
 import './styles/studyList.css';
+import './styles/panel-adjustments.css';
 import App from './components/App';
 import reportWebVitals from './reportWebVitals';
 

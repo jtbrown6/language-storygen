@@ -25,7 +25,7 @@ const ControlPanel = () => {
   const [indirectObjectLevel, setIndirectObjectLevel] = useState(1);
   const [reflexiveVerbLevel, setReflexiveVerbLevel] = useState(1);
   const [idiomaticExpressions, setIdiomaticExpressions] = useState(false);
-  const [level, setLevel] = useState('A2');
+  const [level, setLevel] = useState('B1');
   
   // Handle random scenario generation
   const handleRandomScenario = async () => {
@@ -96,8 +96,8 @@ const ControlPanel = () => {
         <div className="form-group">
           <label className="form-label">Scenario</label>
           <div className="scenario-input">
-            <input
-              type="text"
+            <textarea
+              className="scenario-textarea"
               value={scenario}
               onChange={(e) => setScenario(e.target.value)}
               placeholder="Enter a scenario"

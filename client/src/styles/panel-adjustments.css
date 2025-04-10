@@ -1,0 +1,37 @@
+/* Panel width adjustments and input field improvements */
+.left-panel {
+  flex: 5; /* Changed from 3 for proportional adjustments */
+}
+
+.right-panel {
+  flex: 3; /* Changed from 2 to make it wider */
+  min-width: 350px; /* Increased from 300px */
+}
+
+/* Improved textarea for scenario input */
+.scenario-textarea {
+  width: 100%;
+  min-height: 60px;
+  resize: vertical;
+  font-family: 'Poppins', sans-serif;
+  padding: 8px 12px;
+  border-radius: var(--border-radius);
+  border: 1px solid #ddd;
+  margin-bottom: 15px;
+  transition: var(--transition);
+  line-height: 1.5;
+}
+
+.scenario-textarea:focus {
+  outline: none;
+  border-color: #396afc;
+  box-shadow: 0 0 0 3px rgba(57, 106, 252, 0.25);
+}
+
+/* Adjusted scenario input container */
+.scenario-input {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  align-items: flex-start; /* Align to top for taller textarea */
+}
