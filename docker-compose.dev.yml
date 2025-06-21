@@ -1,6 +1,49 @@
-version: '3.8'
-
 services:
+  mongodb:
+    image: mongo:7.0
+    container_name: language-storygen-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=language-storygen
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/language-storygen --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+      - app_data:/app/data
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - HOST=0.0.0.0
+      - MONGODB_URI=mongodb://mongodb:27017/language-storygen
+    command: npm run dev
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5000/api/health/check', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
   frontend:
     build:
       context: ./client
@@ -17,23 +60,8 @@ services:
     depends_on:
       - backend
 
-  backend:
-    build:
-      context: ./server
-      dockerfile: Dockerfile.dev
-    ports:
-      - "5000:5000"
-    volumes:
-      - ./server:/app
-      - /app/node_modules
-      - app_data:/app/data
-    environment:
-      - NODE_ENV=development
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - PORT=5000
-      - HOST=0.0.0.0
-    command: npm run dev
-
 volumes:
   app_data:
+    driver: local
+  mongodb_data:
     driver: local

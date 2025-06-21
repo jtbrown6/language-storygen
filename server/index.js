@@ -11,6 +11,7 @@ const translationRoutes = require('./routes/translation');
 const studyListRoutes = require('./routes/studyList');
 const healthRoutes = require('./routes/health');
 const currentStoryRoutes = require('./routes/currentStory');
+const audioRoutes = require('./routes/audio');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -52,8 +53,40 @@ mongoose.connect(MONGODB_URI)
     process.exit(1);
   });
 
+// CORS Configuration for production deployment
+const allowedOrigins = [
+  'https://storytime.komebacklans.lan',
+  'http://3.227.197.24:3020',
+  'http://localhost:3000', // Development
+  'http://localhost:3002'  // Development alternative
+];
+
+// Add environment variable support for additional origins
+if (process.env.CORS_ORIGIN) {
+  const additionalOrigins = process.env.CORS_ORIGIN.split(',').map(origin => origin.trim());
+  allowedOrigins.push(...additionalOrigins);
+}
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log(`CORS blocked request from origin: ${origin}`);
+      console.log(`Allowed origins: ${allowedOrigins.join(', ')}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(morgan('dev'));
 
@@ -63,6 +96,7 @@ app.use('/api/translate', translationRoutes);
 app.use('/api/study-list', studyListRoutes);
 app.use('/api/health', healthRoutes);
 app.use('/api/current-story', currentStoryRoutes);
+app.use('/api/audio', audioRoutes);
 
 // Handle production build
 if (process.env.NODE_ENV === 'production') {
