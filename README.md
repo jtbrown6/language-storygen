@@ -145,6 +145,9 @@ cd language-storygen
 # Configure environment
 cp .env.example .env
 nano .env  # Edit with your values
+
+# Modify the client/src/utils/authUtils.js 
+# Change default password from SecurePasswordHere
 ```
 
 #### **3. Production Environment Variables**
@@ -152,8 +155,8 @@ nano .env  # Edit with your values
 # .env file for production
 OPENAI_API_KEY=your_openai_api_key_here
 REACT_APP_PASSWORD=your_secure_password_here
-REACT_APP_API_URL=http://3.227.197.24:5002
-CORS_ORIGIN=https://storytime.komebacklans.lan,http://3.227.197.24:3020
+REACT_APP_API_URL=http://3.227.197.24:5020
+CORS_ORIGIN=https://storytime.komebacklabs.com,http://3.227.197.24:3020
 ```
 
 #### **4. Deploy Application**
@@ -170,19 +173,19 @@ docker-compose logs -f
 
 #### **ElasticIP Setup**
 - **Frontend**: `http://3.227.197.24:3020`
-- **Backend**: `http://3.227.197.24:5002`
-- **MongoDB**: `3.227.197.24:27017` (internal)
+- **Backend**: `http://3.227.197.24:5020`
+- **MongoDB**: `3.227.197.24:27018` (internal)
 
 #### **Cloudflare Tunnel**
-- **Domain**: `https://storytime.komebacklans.lan`
+- **Domain**: `https://storytime.komebacklabs.com`
 - **Target**: `http://3.227.197.24:3020`
 - **CORS**: Automatically configured for both domains
 
 ### **Port Configuration**
 The production setup uses custom ports to avoid conflicts:
-- **Frontend**: `3002` (mapped to container port 3000)
-- **Backend**: `5002` (mapped to container port 5000)
-- **MongoDB**: `27017` (standard MongoDB port)
+- **Frontend**: `3020` (mapped to container port 3000)
+- **Backend**: `5020` (mapped to container port 5000)
+- **MongoDB**: `27018` (mapped to container port 27017)
 
 ## 📡 API Documentation
 
@@ -270,7 +273,7 @@ docker-compose -f docker-compose.dev.yml up --build frontend
 ```bash
 # Development .env
 OPENAI_API_KEY=your_key_here
-REACT_APP_PASSWORD=demo123
+REACT_APP_PASSWORD=demo123 // SecurePasswordHere
 REACT_APP_API_URL=http://localhost:5000
 ```
 

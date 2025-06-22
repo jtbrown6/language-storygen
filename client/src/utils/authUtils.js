@@ -23,7 +23,16 @@ const simpleHash = (str) => {
  * @returns {string} The configured password
  */
 export const getConfiguredPassword = () => {
-  return process.env.REACT_APP_PASSWORD || 'demo123';
+  const envPassword = process.env.REACT_APP_PASSWORD;
+  
+  if (!envPassword || envPassword.trim() === '') {
+    console.warn('⚠️ REACT_APP_PASSWORD not set! Using fallback password. This should not happen in production.');
+    console.warn('🔍 Debug: Available env vars:', Object.keys(process.env).filter(key => key.startsWith('REACT_APP_')));
+    return 'SecurePasswordHere'; // More secure fallback
+  }
+  
+  console.log('✅ REACT_APP_PASSWORD loaded successfully from environment');
+  return envPassword;
 };
 
 /**

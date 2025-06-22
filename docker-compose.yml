@@ -6,12 +6,12 @@ services:
       context: .
       dockerfile: Dockerfile.frontend
     ports:
-      - "192.168.1.214:3002:3000"
+      - "3020:3000"
     restart: unless-stopped
     depends_on:
       - backend
     environment:
-      - REACT_APP_API_URL=http://3.227.197.24:5002
+      - REACT_APP_API_URL=http://3.227.197.24:5020
       - REACT_APP_PASSWORD=${REACT_APP_PASSWORD}
     volumes:
       - app_data:/app/data
@@ -21,7 +21,7 @@ services:
       context: .
       dockerfile: Dockerfile.backend
     ports:
-      - "192.168.1.214:5002:5000"
+      - "5020:5000"
     restart: unless-stopped
     environment:
       - NODE_ENV=production
@@ -38,7 +38,7 @@ services:
     image: mongo:6.0
     restart: unless-stopped
     ports:
-      - "192.168.1.214:27017:27017"
+      - "27018:27017"
     volumes:
       - mongodb_data:/data/db
     command: mongod --quiet --logpath /dev/null

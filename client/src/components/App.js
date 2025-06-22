@@ -43,6 +43,22 @@ const ProtectedApp = () => {
               {renderContent()}
             </div>
           </main>
+          <footer style={{
+            textAlign: 'center',
+            padding: '1rem',
+            marginTop: 'auto',
+            fontSize: '0.875rem',
+            color: '#666',
+            borderTop: '1px solid #e0e0e0',
+            background: 'linear-gradient(135deg, #f8f9fa, #e9ecef)'
+          }}>
+            <div style={{ marginBottom: '0.5rem' }}>
+              Owned by <strong>Jamal Brown</strong>
+            </div>
+            <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>
+              KomebackLabs Organization
+            </div>
+          </footer>
         </StudyListProvider>
       </StoryProvider>
     </div>

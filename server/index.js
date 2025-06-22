@@ -55,7 +55,7 @@ mongoose.connect(MONGODB_URI)
 
 // CORS Configuration for production deployment
 const allowedOrigins = [
-  'https://storytime.komebacklans.lan',
+  'https://storytime.komebacklabs.com',
   'http://3.227.197.24:3020',
   'http://localhost:3000', // Development
   'http://localhost:3002'  // Development alternative
